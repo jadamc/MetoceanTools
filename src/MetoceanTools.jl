@@ -10,6 +10,7 @@ type ts
  isDirn::Array{Bool,1}
  isVector::Array{Bool,1}
 end
+:w
 
 
 
