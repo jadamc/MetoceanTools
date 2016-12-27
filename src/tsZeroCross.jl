@@ -1,69 +1,68 @@
-# #__precompile__()
-"""
-# tsZeroCross Module
+## #__precompile__()
+#"""
+## tsZeroCross Module
+#
+# Zero crossing analysis routines including many outputs: heights, periods, peaks, troughs, etc
+#
+#---
+#
+### Functions
+#
+#    o=tsCalcStats(z)
+#    o=tsCalcZeroCrossDiscrete(z)
+#    o=tsCalcZeroCrossFull(t,z)
+#
+### Types
+#
+#    tsStats -  Type containing basic statistics of the input z-signal
+#    zCross - Type containing zero crossing minima, maxima and height data
+#    zCrossDiscrete - Type containing zero crossing low level data
+#    zCrossUpDown - Type containing height and period data and statistics
+#    ZeroCrossFull - Type containing full zero crossing data 
+#
+### Description
+#
+# An OM_JPL Function.
+#
+# Zero crossing analysis routine including many outputs: heights, periods, peaks, troughs, etc
+#
+# Determines zero crossing parameters from the input time series. Both up crossing
+#  and downcrossing is peformed and reported.
+#
+# If the start and end of the time series is not at zero then these are not included in the
+#  statistics.  Only full zero-crossing wave cycles are used and reported.
+#
+# Values of z which are Inf or NaN are treated as missing values. If a zero-crossing occurs between
+#  these times linear interpolation is used to find the crossing point.
+#
+### Examples
+#
+#```jldoctest
+#julia> f=1./[2;4; 8; 10; 15; 20]
+#julia> a= 0.5 * [1; 2; 3; 6; 2; 1]
+#julia> p=rand(6)*2*pi
+#julia> t=[xi for xi=0:0.1:110 ]
+#julia> z=0*t
+#julia> for i=1:size(a,1)
+#julia> z.=z.+a[i].*sin.(2.*pi.*f[i].*t+p[i])
+#julia> end
+#julia> z=z-mean(z)
+#julia> oStats=tsCalcStats(z)
+#julia> oDis=tsCalcZeroCrossDiscrete(z)
+#julia> oFull=tsCalcZeroCrossFull(t,z)
+#```
+#
+### History
+#
+# Created by Jason McConochie
+#   Revision 1, 20Dec2016 , Jason McConochie
+#      based upon Revision 3, of matlab version
+#"""
 
- Zero crossing analysis routines including many outputs: heights, periods, peaks, troughs, etc
-
----
-
-## Functions
-
-    o=tsCalcStats(z)
-    o=tsCalcZeroCrossDiscrete(z)
-    o=tsCalcZeroCrossFull(t,z)
-
-## Types
-
-    tsStats -  Type containing basic statistics of the input z-signal
-    zCross - Type containing zero crossing minima, maxima and height data
-    zCrossDiscrete - Type containing zero crossing low level data
-    zCrossUpDown - Type containing height and period data and statistics
-    ZeroCrossFull - Type containing full zero crossing data 
-
-## Description
-
- An OM_JPL Function.
-
- Zero crossing analysis routine including many outputs: heights, periods, peaks, troughs, etc
-
- Determines zero crossing parameters from the input time series. Both up crossing
-  and downcrossing is peformed and reported.
-
- If the start and end of the time series is not at zero then these are not included in the
-  statistics.  Only full zero-crossing wave cycles are used and reported.
-
- Values of z which are Inf or NaN are treated as missing values. If a zero-crossing occurs between
-  these times linear interpolation is used to find the crossing point.
-
-## Examples
-
-```jldoctest
-julia> f=1./[2;4; 8; 10; 15; 20]
-julia> a= 0.5 * [1; 2; 3; 6; 2; 1]
-julia> p=rand(6)*2*pi
-julia> t=[xi for xi=0:0.1:110 ]
-julia> z=0*t
-julia> for i=1:size(a,1)
-julia> z.=z.+a[i].*sin.(2.*pi.*f[i].*t+p[i])
-julia> end
-julia> z=z-mean(z)
-julia> oStats=tsCalcStats(z)
-julia> oDis=tsCalcZeroCrossDiscrete(z)
-julia> oFull=tsCalcZeroCrossFull(t,z)
-```
-
-## History
-
- Created by Jason McConochie
-   Revision 1, 20Dec2016 , Jason McConochie
-      based upon Revision 3, of matlab version
-"""
-module tsZeroCross
-
-using PyPlot
+#using PyPlot
 ########################################################################################
 # Functions and types for basic time series data statistics
-export tsCalcStats, tsStats
+#export tsCalcStats, tsStats
 """
 # tsStats
 Type containing basic statistics of the input z-signal
@@ -86,7 +85,7 @@ end
 
 ########################################################################################
 # Functions and types for discrete zero crossing analysis using z only, no t
-export tsCalcZeroCrossDiscrete, zCrossDiscrete, zCross
+#export tsCalcZeroCrossDiscrete, zCrossDiscrete, zCross
 # Type to contain more detail but usually less relevant information
 #  this is made by the zerocross_discrete function
 """
@@ -142,7 +141,7 @@ end
 
 ########################################################################################
 # Functions and types for full zero crossing analysis using t,z
-export tsCalcZeroCrossFull, ZeroCrossFull
+#export tsCalcZeroCrossFull, ZeroCrossFull
 """
 # zCrossUpDown
 
@@ -207,27 +206,6 @@ type ZeroCrossFull
    end
 end
 
-
-########################################################################################
-# Run internal test
-########################################################################################
-function test()
-    # Make some random waves and run tsZeroCross
-    f=1./[2;4; 8; 10; 15; 20]
-    a= 0.5 * [1; 2; 3; 6; 2; 1]
-    p=rand(6)*2*pi
-    t=[xi for xi=0:0.1:110 ]
-    z=0*t
-    for i=1:size(a,1)
-        z.=z.+a[i].*sin.(2.*pi.*f[i].*t+p[i])
-    end
-    z=z-mean(z)
-    oStats=tsCalcStats(z)
-    oDis=tsCalcZeroCrossDiscrete(z) 
-    oFull=tsCalcZeroCrossFull(t,z) 
-    o=oFull
-    return o,z,t
-end
 
 ########################################################################################
 # Basic Statistics - tsCalcStats
@@ -421,11 +399,9 @@ function tsCalcZeroCrossDiscrete(z::Array{Float64,1})::zCrossDiscrete
     ed=o.izc[iuc[i+1],1] #last point in upcross wave
     mz=z[st:ed]
     o.uc.zmax[i]=maximum(mz)
-    imax=indmax(mz)
     o.uc.zmin[i]=minimum(mz)
-    imin=indmin(mz)
-    o.uc.izmax[i]=st+imax-1
-    o.uc.izmin[i]=st+imin-1
+    o.uc.izmax[i]=st+indmax(mz)-1
+    o.uc.izmin[i]=st+indmin(mz)-1
   end
   o.uc.height=o.uc.zmax-o.uc.zmin
     
@@ -443,11 +419,9 @@ function tsCalcZeroCrossDiscrete(z::Array{Float64,1})::zCrossDiscrete
     ed=o.izc[iuc[i+1],1]      #last point in upcross wave
     mz=z[st:ed]
     o.dc.zmax[i]=maximum(mz)
-    imax=indmax(mz)
     o.dc.zmin[i]=minimum(mz)
-    imin=indmin(mz)
-    o.dc.izmax[i]=st+imax-1
-    o.dc.izmin[i]=st+imin-1
+    o.dc.izmax[i]=st+indmax(mz)-1
+    o.dc.izmin[i]=st+indmin(mz)-1
   end
   o.dc.height=o.dc.zmax-o.dc.zmin
     
@@ -639,4 +613,3 @@ function tsCalcZeroCrossFull(t::Array{Float64,1},z::Array{Float64,1})::ZeroCross
 
 
 
-end # module
