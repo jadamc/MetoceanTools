@@ -48,14 +48,21 @@ end
  Basic wave spectrum records data which can contain 1D or 2D spectra 
 """
 type waveSpec
- sDate::DateTime
- f::Array{Float64}
- df::Array{Float64}
- th::Array{Float64}
- dth::Array{Float64}
+ f::Array{Float64,1}
+ df::Array{Float64,1}
+ th::Array{Float64,1}
+ dth::Array{Float64,1}
  S::Array{Float64,2}
  function waveSpec()
-   return new()
+   t=new()
+   t.f=1./(30:-0.05:2)
+   nf=size(t.f,1)
+   t.df=copy(t.f)
+   t.df[1]=t.f[2]-t.f[1]
+   t.df[2:(nf-1)]=( t.f[3:nf]    -t.f[2:(nf-1)] )/2 + 
+                    ( t.f[2:(nf-1)]-t.f[1:(nf-2)] )/2
+   t.df[nf]=t.f[nf]-t.f[nf-1]
+   return t
  end
 end
 
@@ -80,6 +87,14 @@ include("showSampling.jl")
 
 # Provides basic zero-crossing analysis data types and methods
 include("tsZeroCross.jl")
+
+# General functions for matlab conversion
+include("matlabHelpers.jl")
+
+
+
+
+
 
 
 end # module
