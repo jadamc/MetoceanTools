@@ -1,5 +1,6 @@
 module MetoceanTools
 using PyPlot
+using Optim
 
 export tsParm, tsBurst, waveSpec
 
@@ -52,6 +53,8 @@ type waveSpec
  df::Array{Float64,1}
  th::Array{Float64,1}
  dth::Array{Float64,1}
+ Sf::Array{Float64,1}
+ Sth::Array{Float64,1}
  S::Array{Float64,2}
  function waveSpec()
    t=new()
@@ -90,6 +93,12 @@ include("tsZeroCross.jl")
 
 # General functions for matlab conversion
 include("matlabHelpers.jl")
+
+# General functions for Julia library
+include("Helpers.jl")
+
+# wave Spectrum functions
+include("waveSpec.jl")
 
 
 

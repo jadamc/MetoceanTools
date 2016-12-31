@@ -1,9 +1,37 @@
 
 
+function tsQuickScatter(o::tsParm,pngImageFile::String)
+
+  plt=PyPlot
+  plt.ioff()
+  plt.clf()
+  nPlots=size(o.Data,2)
+  f=plt.figure("tsQuickScatter",figsize=(4*nPlots,4*nPlots))
+  subplots_adjust(wspace=0.3)
+  k=0
+  for i=1:nPlots
+    for j=1:nPlots
+    k+=1
+    ax=plt.subplot(nPlots,nPlots,k)
+    ax[:set_ylabel](o.Name[j],fontsize=10)
+    ax[:tick_params]("both",labelsize=10)
+    ax[:set_xlabel](o.Name[i],fontsize=10)
+    ax[:tick_params]("both",labelsize=10)
+    PyPlot.plot(o.Data[:,i],o.Data[:,j],"r.")
+    grid("on")
+    end
+  end
+  println(*("File saved to:",pngImageFile))
+  savefig(pngImageFile)
+  return true
+  end
+
+
 function tsQuickPlot(o::tsParm,pngImageFile::String)   
 
    plt=PyPlot
    plt.ioff()
+   plt.clf()
    nPlots=size(o.Data,2)
    f=plt.figure("tsQuickPlot",figsize=(10,4*nPlots))
    subplots_adjust(hspace=0.25)

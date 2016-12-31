@@ -1,13 +1,3 @@
-"""
-  Array based Dates.value function definition
-"""
-function Dates.value(in::Array{DateTime,1})::Array{Int64,1}
-  out=zeros(Int64,size(in,1))
-  for i=1:length(in)
-    out[i]=Dates.value(in[i])
-  end
-  return out
-end
 
 """
 showSampling
