@@ -75,7 +75,7 @@ if isdefined(inSpec,:S)
         end
 	inSpec.Sf[i]=sumS
       end
-      #inSpec.Sf=vec(sum(dthm.*inSpec.S,2))
+      inSpec.Sf=vec(sum(dthm.*inSpec.S,2))
     end
   end
   if !isdefined(inSpec,:Sth)
@@ -90,10 +90,20 @@ if isdefined(inSpec,:S)
         end
 	inSpec.Sth[i]=sumS
       end
-      #inSpec.Sth=vec(sum(dfm.*inSpec.S,1)) 
+      inSpec.Sth=vec(sum(dfm.*inSpec.S,1)) 
     end
   end
 end
+if !isdefined(inSpec,:S) & isdefined(inSpec,:Sf)
+  inSpec.S=inSpec.Sf[:,:]
+end
+
+
+
+
+
+
+
 
 return inSpec
 
@@ -189,7 +199,7 @@ end
 
 
 
-function makeWaveSpecDirn(th::Array{Float64,1})
+function makeWaveSpecDelDirn(th::Array{Float64,1})
   dth=similar(th)
   nth=length(th)
   for i=2:nth-1
@@ -206,16 +216,18 @@ function makeWaveSpecDirn(th::Array{Float64,1})
 end
 
 
-
-function makeWaveSpecFreq(f::Array{Float64,1})
-#t.f=1./(30:-0.05:2)
-df=copy(f)
-nf=length(f)
-df[1]=f[2]-f[1]
-df[2:(nf-1)]=( f[3:nf]-f[2:(nf-1)]     )/2 +
-( f[2:(nf-1)]-f[1:(nf-2)] )/2
-df[nf]=f[nf]-f[nf-1]
-return df
+function makeWaveSpecFreq()
+  f=[1/x for x=30:-0.05:2]
+  return f
+end
+function makeWaveSpecDelFreq(f::Array{Float64,1})
+  df=copy(f)
+  nf=length(f)
+  df[1]=f[2]-f[1]
+  df[2:(nf-1)]=( f[3:nf]-f[2:(nf-1)]     )/2 +
+  ( f[2:(nf-1)]-f[1:(nf-2)] )/2
+  df[nf]=f[nf]-f[nf-1]
+  return df
 end
 
 
@@ -223,7 +235,7 @@ end
 # Make a new wave spectrum
 #######################################################################
 #function makeSpecJONSWAP(Hs,Tp,Gamma,SigmaA,SigmaB)::waveSpec
-function makeSpecJONSWAP(inParm)::waveSpec
+function makeSpecJONSWAP(inParm::Array{Float64,1})::waveSpec
   # 0. Map input parameters
   (Hs,Tp,Gamma,SigmaA,SigmaB)=inParm
   # A. Make a new spectrum object
@@ -232,20 +244,24 @@ function makeSpecJONSWAP(inParm)::waveSpec
   g::Float64=9.81
   fp::Float64=1./Tp
   nf=length(s.f)
-  S=zeros(nf)
+  s.Sf=zeros(nf)
   for i=1:nf
-    sigma=SigmaA*(s.f[i]<fp) + SigmaB*(s.f[i]>=fp)
-    G=Gamma ^ exp( -1 * (((s.f[i]-fp)^2) / (2*sigma^2*fp^2)) )
-    S[i]=g^2.*(2.*pi)^-4.*s.f[i]^-5.*exp(-5/4.*(s.f[i]/fp).^-4.) * G
+    if s.f[i]<fp
+      sigma=SigmaA
+    else
+      sigma=SigmaB
+    end
+    s.Sf[i]= g^2*(2*pi)^-4* s.f[i]^-5* exp(-5/4*(s.f[i]/fp)^-4)*
+          Gamma^(exp(-1 * (((s.f[i]-fp)^2) / 
+	  (2*sigma^2*fp^2)) ))
   end
   sumS=0.
   for i=1:nf
-    sumS+=S[i]*s.df[i]
+    sumS+=s.Sf[i]*s.df[i]
   end
   alpha=Hs.^2./(16.*sumS)
-  s.Sf=zeros(nf)
   for i=1:nf
-    s.Sf[i]=alpha.*S[i]
+    s.Sf[i]=alpha.*s.Sf[i]
   end
   return s
 end
@@ -387,10 +403,10 @@ function fitSpecJONSWAPsingle(inSpec::Array{waveSpec,1},fParm::Array{Float64,1},
   for i=1:length(inSpec)
     o.Data[i,:]=fitSpecJONSWAPsingle(inSpec[i].f,inSpec[i].Sf,fParm,fMask)
     o.sDate[i]=DateTime(2000,1,1,0,0,0)+Dates.Day(i)
-    #solvedSpec=makeSpecJONSWAP(o.Data[i,:])
+    solvedSpec=makeSpecJONSWAP(o.Data[i,:])
     #PyPlot.clf()
-    #plot(inSpec[i].f,vec(inSpec[i].S),marker="o")
-    #plot(solvedSpec.f,solvedSpec.S)
+    #plot(inSpec[i].f,vec(inSpec[i].Sf),marker="o")
+    #plot(solvedSpec.f,solvedSpec.Sf)
     #savefig(*("Jason",@sprintf("%015d",i)))
   end
   return o
